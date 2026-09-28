@@ -42,9 +42,12 @@ size_t ds_len(String *s);
 size_t ds_cap(String *s);
 
 /* Get the underlying null terminated string */
-const char *ds_str(String *s);
+const char *ds_str(const String *s);
 
 /* Compare two strings like strcmp */
 int ds_strcmp(const String *a, const String *b);
+
+/* Shrink the entire string to fit the exact length */
+String *ds_shrinkToFit(String *s);
 
 #endif
