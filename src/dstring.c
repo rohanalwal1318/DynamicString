@@ -56,12 +56,12 @@ static int ds_ensureCapacity(String *s, size_t needed){
 
 /* Ensure the Capacity is enough, Eventually grow in to fit the character, append the character at the end of the day! */
 
-String *ds_appendChar(String *s, const char c){
+Status ds_appendChar(String *s, const char c){
 
-  if(!s) return s; /* Empty String */
+  if(!s) return DS_ERR_ARG; /* Empty String */
 
   if(!ds_ensureCapacity(s, s->length + 1)){ /* Ensure capacity is enough for    the overall -> present str + 1 char */
-    return s; /* Failed to Enusre capacity .. leave s untouched */
+    return DS_ERR_NOMEM; /* Failed to Enusre capacity .. leave s untouched */
   }
 
   /* Append a single character at the end with a null character */
@@ -69,23 +69,23 @@ String *ds_appendChar(String *s, const char c){
   s->length += 1;
   s->data[s->length] = '\0';
 
-  return s;
+  return DS_OK;
 
 }
 
 /* Append suffix string to current string .. first ensure capacity, Use memcpy to append suffix string to current string return string possibly reallocated */
 
-String *ds_appendStr(String *s, const char *suffix){
+Status ds_appendStr(String *s, const char *suffix){
 
-  if(!s || !suffix) return s;
+  if(!s || !suffix) return DS_ERR_ARG;
 
   size_t suffLen = strlen(suffix); /* Length of the suffix String */
 
-  if(suffLen == 0) return s;
+  if(suffLen == 0) return DS_ERR_ARG;
 
   if(!ds_ensureCapacity(s, s->length + suffLen)) /* Ensure the capacity length + suffixLength*/
   {
-    return s; /* Failed to reallocate */
+    return DS_ERR_NOMEM; /* Failed to reallocate */
   }
 
   memcpy(s->data + s->length, suffix, suffLen); /* Copy the suffix String to og string */
@@ -93,15 +93,15 @@ String *ds_appendStr(String *s, const char *suffix){
   s->length += suffLen; /* Length = s->length + suffixLen */
   s->data[s->length] = '\0'; /* Always Null terminated String */
 
-  return s; /* Remember s is reallocated to a new memory */
+  return DS_OK;
 
 }
 
 /* A variadic Function uses vsnprintf() to allow printf-style formatting to the string, create two argument pointers .. one for calculating size (needed) and another for actual decoding, use vsnprintf() to write to the string*/
 
-String *ds_sprintf(String *s, const char *fmt, ...){
+Status ds_sprintf(String *s, const char *fmt, ...){
 
-  if(!s || !fmt) return s;
+  if(!s || !fmt) return DS_ERR_ARG;
 
   va_list ap;
   va_start(ap, fmt);
@@ -113,12 +113,12 @@ String *ds_sprintf(String *s, const char *fmt, ...){
 
   if(needed < 0){
     va_end(apCopy);
-    return s; /* Encoding error */
+    return DS_ERR_NOMEM; /* Encoding error */
   }
 
   if(!ds_ensureCapacity(s, (size_t)needed)){
     va_end(apCopy);
-    return s; /* Reallocation Failed !! */
+    return DS_ERR_NOMEM; /* Reallocation Failed !! */
   }
 
   vsnprintf(s->data + s->length, (size_t)needed + 1, fmt, apCopy); /* Write the formatted string to original string */
@@ -126,7 +126,7 @@ String *ds_sprintf(String *s, const char *fmt, ...){
 
   s->length += (size_t)needed; /* Update new length */
 
-  return s;
+  return DS_OK;
 
 }
 
@@ -166,22 +166,22 @@ int ds_strcmp(const String *a, const String *b){
 }
 
 /* Find the exact length, reallocate and return s, possibly reallocated */
-String *ds_shrinkToFit(String *s){
+Status ds_shrinkToFit(String *s){
   
-  if(!s) return s;
+  if(!s) return DS_ERR_ARG;
 
   size_t exact = ds_len(s) + 1; /* Calculate the exact length */
 
-  if(exact <= 0) return s; /* If it's a null string */
+  if(exact <= 0) return DS_ERR_NOMEM; /* If it's a null string */
 
   char *newData = realloc(s->data, exact);
 
-  if(!newData) return s; /* Reallocation Failed !! */
+  if(!newData) return DS_ERR_NOMEM; /* Reallocation Failed !! */
 
   s->data = newData;
   s->capacity = exact;
 
-  return s;
+  return DS_OK;
 
 }
 

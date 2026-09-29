@@ -17,17 +17,23 @@ typedef struct{
 
 /* Note ---- size_t -> unsigned long long int has been used to hold larger integer data */
 
+typedef enum {
+    DS_OK        =  0,  /* success                                    */
+    DS_ERR_NOMEM = -1,  /* out of memory, or size would overflow      */
+    DS_ERR_ARG   = -2   /* invalid argument (e.g. NULL String)        */
+} Status;
+
 /* Create a new String from a C string .. use NULL for empty String*/
 String *ds_new(const char *newString);
 
 /* Append a single character to s. return s .. possibly reallocated!! */
-String *ds_appendChar(String *s, const char c);
+Status ds_appendChar(String *s, const char c);
 
 /* Append a String suffix to s. return s .. possibly reallocated!! */
-String *ds_appendStr(String *s, const char *suffix);
+Status ds_appendStr(String *s, const char *suffix);
 
 /* Append using printf-style formatting. Generally sprintf. Return s, possibly reallocated*/
-String *ds_sprintf(String *s, const char *fmt, ...);
+Status ds_sprintf(String *s, const char *fmt, ...);
 
 /* Free a string and its buffer */
 void ds_free(String *s);
@@ -48,6 +54,6 @@ const char *ds_str(const String *s);
 int ds_strcmp(const String *a, const String *b);
 
 /* Shrink the entire string to fit the exact length */
-String *ds_shrinkToFit(String *s);
+Status ds_shrinkToFit(String *s);
 
 #endif

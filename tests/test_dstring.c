@@ -56,7 +56,7 @@ static void test_shrink_to_fit(){
 
   String *s = ds_new("Hello World!!");
   assert(ds_cap(s) == 16);
-  s = ds_shrinkToFit(s);
+  ds_shrinkToFit(s);
   assert(ds_cap(s) == ds_len(s) + 1);
   ds_free(s);
 
