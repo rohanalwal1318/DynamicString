@@ -56,4 +56,21 @@ int ds_strcmp(const String *a, const String *b);
 /* Shrink the entire string to fit the exact length */
 Status ds_shrinkToFit(String *s);
 
+/* ------- Version 0.2 --------- */
+
+/* Find the first occurence of the needle in the haystack, Returns the index if found or else -1 */
+long ds_find(const String *s, const char *needle);
+
+/* Return 1 if s contains needle or else 0 */
+int ds_contains(const String *s, const char *needle);
+
+/* Return 1 if s starts with prefix, 0 otherwise */
+int ds_startsWith(const String *s, const char *prefix);
+
+/* Return 1 if s ends with suffix, 0 otherwise */
+int ds_endsWith(const String *s, const char *suffix);
+
+/* Returning a brand NEW string containing len characters of s from start .. clamped to what's available */
+String *ds_substr(const String *s, size_t start, size_t len);
+
 #endif

@@ -185,3 +185,71 @@ Status ds_shrinkToFit(String *s){
 
 }
 
+/* Version 0.2*/
+
+/* Uses strstr to find needle in the haystack, return -1 if not found! */
+long ds_find(const String *haystack, const char *needle){
+
+  if(!haystack || !needle) return -1; /* if any one is NULL*/
+
+  char *found = strstr(haystack->data, needle); /* Use strstr */
+
+  if(!found) return -1; /* NOt found */
+
+  return (found - haystack->data); /* Return the diff nothing but an index */
+
+}
+
+/* Just a wrap around of ds_find */
+int ds_contains(const String *s, const char *needle){
+  return ds_find(s, needle) >= 0; /* Check if present */
+}
+
+/* Uses strncmp to compare the first n characters of the prefix with s starting*/
+int ds_startsWith(const String *s, const char *prefix){
+
+  if(!s || !prefix) return 0; /* If any one is Empty */
+
+  size_t prefixLen = strlen(prefix); /* Calculate the length of the prefix */
+
+  if(prefixLen > s->length) return 0; /* Can't compare greater than the data */
+
+  return strncmp(s->data, prefix, prefixLen) == 0; /* return 1 if found */
+
+}
+  
+/* Uses strcmp to compare the last suffixlen with suffix */
+int ds_endsWith(const String *s, const char *suffix){
+
+  if(!s || !suffix) return 0; /* If any one is empty */
+
+  size_t suffixLen = strlen(suffix); /* length of the suffix string */
+
+  if(suffixLen > s->length) return 0; /* Can't compare which is greater!! */
+
+  return strcmp(s->data + (s->length - suffixLen), suffix) == 0;
+}
+
+/* Returns the len characters of s from the start .. clamped to what's available */
+String *ds_substr(const String *s, size_t start, size_t len){
+
+  if(!s || start > s->length) return NULL;
+
+  size_t available = s->length - start;
+
+  if(len > available) len = available;
+
+  char *buffer = malloc(len + 1);
+
+  if(!buffer) return NULL;
+
+  memcpy(buffer, s->data+start, len);
+  buffer[len] = '\0';
+
+  String *res = ds_new(buffer);
+  free(buffer);
+
+  return res;
+
+}
+
