@@ -253,3 +253,20 @@ String *ds_substr(const String *s, size_t start, size_t len){
 
 }
 
+/* Insert the str in s at the position pos, tail of the s is appended later, insert in between, use memmove to avoid unwanted overlap collisions will cause by memcpy*/
+Status ds_insertStr(String *s, size_t pos, const char *str){
+
+  if(!s || !str || s->length > pos) return DS_ERR_ARG;
+
+  size_t insertLen = strlen(str);
+
+  if(!ds_ensureCapacity(s, s->length + insertLen)) return DS_ERR_NOMEM;
+
+  /* Shift the tail including '\0' character after the position pos to the right leaving the gap for str */
+  memmove(s->data + pos + insertLen, s->data + pos, s->length - pos + 1);
+  memcpy(s->data + pos, str, insertLen);
+
+  s->length += insertLen;
+  return DS_OK;
+
+}

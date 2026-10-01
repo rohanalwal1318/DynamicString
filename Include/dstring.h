@@ -73,4 +73,7 @@ int ds_endsWith(const String *s, const char *suffix);
 /* Returning a brand NEW string containing len characters of s from start .. clamped to what's available */
 String *ds_substr(const String *s, size_t start, size_t len);
 
+/*Insert Str in s at position pos, shifting the rest of s to the right */
+Status ds_insertStr(String *s, size_t pos, const char *str);
+
 #endif
