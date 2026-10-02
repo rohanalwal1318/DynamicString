@@ -270,3 +270,34 @@ Status ds_insertStr(String *s, size_t pos, const char *str){
   return DS_OK;
 
 }
+
+/* Find the first occurrence of find string in s->data using strstr, if replace string is larger than find string .. the memory must need to be reallocate .. capacity must vary, move the entire tailLen string along with '\0' character copy the replace to the position and update the length */
+
+Status ds_replaceStr(String *s, const char *find, const char *replace){
+
+  if(!s || !find || !replace) return DS_ERR_ARG;
+
+  char *pos = strstr(s->data, find);
+
+  if(!pos) return DS_ERR_ARG;
+
+  size_t idx = (size_t)(pos - s->data);
+  size_t findLen = strlen(find);
+  size_t replaceLen = strlen(replace);
+  size_t tailLen = s->length - idx - findLen;
+
+  if(replaceLen > findLen){
+    if(!ds_ensureCapacity(s, s->length - findLen + replaceLen))
+      return DS_ERR_NOMEM;
+  }
+
+  pos = s->data + idx;
+
+  memmove(pos+replaceLen, pos+findLen, tailLen+1);
+  memcpy(pos, replace, replaceLen);
+
+  s->length = s->length - findLen + replaceLen;
+
+  return DS_OK;
+
+}

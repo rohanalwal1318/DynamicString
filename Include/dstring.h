@@ -76,4 +76,7 @@ String *ds_substr(const String *s, size_t start, size_t len);
 /*Insert Str in s at position pos, shifting the rest of s to the right */
 Status ds_insertStr(String *s, size_t pos, const char *str);
 
+/* Replace the first occurrence of find with replace .. DS_ERR_ARG if find not found!! */
+Status ds_replaceStr(String *s, const char *find, const char *replace);
+
 #endif
