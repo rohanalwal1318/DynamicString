@@ -1,4 +1,5 @@
 #include "dstring.h"
+#include<ctype.h>
 
 #define DS_INITIAL_CAPACITY 16
 
@@ -277,27 +278,82 @@ Status ds_replaceStr(String *s, const char *find, const char *replace){
 
   if(!s || !find || !replace) return DS_ERR_ARG;
 
-  char *pos = strstr(s->data, find);
+  char *pos = strstr(s->data, find); /* First find the occurrence of find */
 
-  if(!pos) return DS_ERR_ARG;
+  if(!pos) return DS_ERR_ARG; /* Not Found!! */
 
-  size_t idx = (size_t)(pos - s->data);
-  size_t findLen = strlen(find);
-  size_t replaceLen = strlen(replace);
-  size_t tailLen = s->length - idx - findLen;
+  size_t idx = (size_t)(pos - s->data); /* Index of found */
+  size_t findLen = strlen(find); /* Length of find */
+  size_t replaceLen = strlen(replace); /* Length of replace */
+  size_t tailLen = s->length - idx - findLen; /* Entire Tail length*/
 
+  /* If want to replace length is more than availabe .. need to ensure capacity */
   if(replaceLen > findLen){
     if(!ds_ensureCapacity(s, s->length - findLen + replaceLen))
       return DS_ERR_NOMEM;
   }
 
-  pos = s->data + idx;
+  pos = s->data + idx; /* ensureCapacity may reallocate s->data, new pos */
 
-  memmove(pos+replaceLen, pos+findLen, tailLen+1);
-  memcpy(pos, replace, replaceLen);
+  memmove(pos+replaceLen, pos+findLen, tailLen+1); /* move the entire tail first */
+  memcpy(pos, replace, replaceLen); /* Copy the replace string to pos */
 
-  s->length = s->length - findLen + replaceLen;
+  s->length = s->length - findLen + replaceLen; /* Update the length */
 
   return DS_OK;
 
+}
+
+/* Remove leading and trailing whitespace characters by using two pointers one from the fornt and other from the end, no new allocation needed .. removed in place */
+Status ds_trim(String *s){
+
+  if(!s) return DS_ERR_ARG;
+
+  size_t start = 0;
+
+  /* Skip starting whitespaces */
+  while(start < s->length && isspace((unsigned char)s->data[start])) start++;
+
+  size_t end = s->length;
+
+  /* Skip ending whitespaces */
+  while(end < start && isspace((unsigned char)s->data[end-1])) end--;
+
+  size_t newLen = end - start; /* New Length */
+
+  if(start > 0 && newLen > 0){
+    memmove(s->data, s->data+start, newLen);
+  }
+
+  s->data[newLen] = '\0';
+  s->length = newLen;
+
+  return DS_OK;
+
+}
+
+/* Read any line an entire line of any length .. do not include \n itself use fgetc to read character from the file pointer upto EOF */
+
+String *ds_readLine(FILE *fp){
+
+  if(!fp) return NULL;
+
+  String *line = ds_new(NULL); /* Empty String */
+
+  if(!line) return NULL; /* Failed */
+
+  int c = 0, f = 0;
+
+  while((c = fgetc(fp)) != EOF){
+    f = 1;
+    if(c == '\n') break; /* Stop at newline .. do not include even */
+    ds_appendChar(line, (char)c); /* Use appendChar to append characterwise */
+  }
+
+  if(!f){
+    ds_free(line);
+    return NULL;
+  }
+
+  return line;
 }

@@ -7,6 +7,7 @@
 #include<stdlib.h>
 #include<stdarg.h>
 
+
 typedef struct{
 
   char *data; /* heap allocated memory, always null terminated*/
@@ -78,5 +79,11 @@ Status ds_insertStr(String *s, size_t pos, const char *str);
 
 /* Replace the first occurrence of find with replace .. DS_ERR_ARG if find not found!! */
 Status ds_replaceStr(String *s, const char *find, const char *replace);
+
+/* Remove Leading/Trailing spaces in place, Return DS_OK on success!! */
+Status ds_trim(String *s);
+
+/* Read the entire line of any length from fp(File pointer) stripping the trailing '\0', Return NULL if EOF without any characters */
+String *ds_readLine(FILE *fp);
 
 #endif
